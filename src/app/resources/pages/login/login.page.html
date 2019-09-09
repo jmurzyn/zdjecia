@@ -1,0 +1,25 @@
+<ion-header>
+    <ion-toolbar color="primary" >
+        <ion-title>Zdjęcia <img src="assets/logo.png"></ion-title>
+    </ion-toolbar>
+</ion-header>
+<ion-content padding>
+    <ion-toolbar class="subtitle">
+        <ion-title color="primary">Logowanie</ion-title>
+    </ion-toolbar>
+    <form [formGroup]="form">
+        <ion-item>
+            <ion-input placeholder="Email" type="email" autocomplete autocorrect formControlName="email"></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-input placeholder="Hasło" type="password" formControlName="password"></ion-input>
+        </ion-item>
+        <span class="input-error-message">{{ message }} </span>
+        <br>
+        <ion-button color="primary" expand="full" (click)="onSubmit()">Zaloguj</ion-button>
+        <br>
+        <ion-item routerLink="/register" lines="none">
+            <ion-label color="primary" text-center>Rejestracja</ion-label>
+        </ion-item>
+    </form>
+</ion-content>
