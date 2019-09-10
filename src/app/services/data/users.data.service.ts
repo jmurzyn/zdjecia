@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AngularFireDatabase } from '@angular/fire/database';
+import { Photo } from '../../models/photo.model';
 
 @Injectable({
     providedIn: 'root'
@@ -22,5 +23,11 @@ export class UsersDataService
     getUser(id: string)
     {
         return this.fireDatabase.object(`/users/${id}`);
+    }
+
+    addPhoto(id: string, photo: Photo)
+    {
+        const ref = this.fireDatabase.list(`/users/${id}/photos`);
+        ref.push(photo);
     }
 }

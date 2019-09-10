@@ -1,59 +1,73 @@
-import { Component, OnInit } from '@angular/core';
-// import { RecipesDataService } from '../../../../services/data/recipes.data.service';
-// import { Recipe } from '../../../../models/photo.model';
-//import { ReminderModalPage } from '../reminders/reminder-modal/reminder-modal.page';
-import { ModalController } from '@ionic/angular';
-// import { SearchFiltersPage } from './add-photo-filters/add-photo-filters.page';
-// import { Ingredient } from '../../../../models/ingredient.model';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Plugins, CameraResultType, CameraSource } from '@capacitor/core';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { PhotosDataService } from '../../../../services/data/photos.data.service';
+import { UsersDataService } from '../../../../services/data/users.data.service';
+import { AuthService } from '../../../../services/core/auth.service';
 
 @Component({
     selector: 'app-search',
     templateUrl: './add-photo.page.html',
     styleUrls: [ './add-photo.page.scss' ],
 })
-export class AddPhotoPage implements OnInit
+export class AddPhotoPage
 {
-    // results: Array<Recipe> = [];
-    // add-photo: string = "";
-    // inProgress: boolean = false;
-    // ingredients: Array<Ingredient> = [];
+    photo: SafeResourceUrl = null;
+    image: string = null;
+    position: Position = null;
+    location: string = null;
+
+    // @ts-ignore
+    @ViewChild('map') mapElement: ElementRef;
+    map: any;
 
     constructor(
-        // private recipesDataService: RecipesDataService,
-                private modalController: ModalController) { }
+        private sanitizer: DomSanitizer,
+        private photosDataService: PhotosDataService,
+        private usersDataService: UsersDataService,
+        private authService: AuthService
+    ) { }
 
-    ngOnInit() {}
+    async onSave()
+    {
+        const photo = await this.photosDataService.uploadPhoto(this.image, this.position.coords.latitude, this.position.coords.longitude, this.location);
+        this.usersDataService.addPhoto(this.authService.logged.id, photo);
+    }
 
-    // private getData() : void
-    // {
-    //     this.inProgress = true;
-    //     this.recipesDataService
-    //         .searchRecipes(this.add-photo, this.ingredients.map(ingredient => ingredient.key))
-    //         .subscribe(data => {
-    //
-    //             this.inProgress = false;
-    //             this.results = data.results;
-    //         });
-    // }
-    //
-    // onSearch() : void
-    // {
-    //     this.getData();
-    // }
-    //
-    // onFilter()
-    // {
-    //     this.modalController.create({
-    //         component: SearchFiltersPage,
-    //         componentProps: { ingredients: this.ingredients }
-    //     })
-    //     .then(modal => {
-    //         modal.present();
-    //         return modal.onDidDismiss()
-    //     })
-    //     .then(result => {
-    //         this.ingredients = result.data.ingredients;
-    //         this.getData();
-    //     });
-    // }
+    async takePicture()
+    {
+        const image = await Plugins.Camera.getPhoto({
+            quality: 100,
+            allowEditing: false,
+            resultType: CameraResultType.DataUrl,
+            source: CameraSource.Camera
+        });
+
+        this.image = image.dataUrl;
+        this.photo = this.sanitizer.bypassSecurityTrustResourceUrl(image && (image.dataUrl));
+        this.getCurrentPosition()
+    }
+
+    async getCurrentPosition()
+    {
+        const coordinates = <Position>await Plugins.Geolocation.getCurrentPosition();
+        this.position = coordinates;
+        this.locatePlace();
+    }
+
+    locatePlace()
+    {
+        this.map = new google.maps.Map(this.mapElement.nativeElement);
+        let service = new google.maps.places.PlacesService(this.map);
+        service.nearbySearch({
+            location: new google.maps.LatLng(this.position.coords.latitude, this.position.coords.longitude),
+            radius: 500,
+            types: [ "" ]
+        }, (results, status) => {
+            if(Array.isArray(results) && results[0])
+                this.location = results[0].name;
+        });
+    }
+
+
 }

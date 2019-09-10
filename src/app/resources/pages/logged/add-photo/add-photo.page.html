@@ -6,35 +6,21 @@
         <ion-title>CookEat</ion-title>
     </ion-toolbar>
 </ion-header>
-<ion-content>
-<!--    <br>-->
-<!--    <ion-grid>-->
-<!--        <ion-row>-->
-<!--            <ion-col>-->
-<!--                <ion-searchbar animated debounce="500" [(ngModel)]="add-photo" (ionChange)="onSearch()"></ion-searchbar>-->
-<!--            </ion-col>-->
-<!--            <ion-col size="2">-->
-<!--                <ion-item tappable lines="none" id="filter" (click)="onFilter()">-->
-<!--                    <ion-icon name="funnel"></ion-icon>-->
-<!--                </ion-item>-->
-<!--            </ion-col>-->
-<!--        </ion-row>-->
-<!--    </ion-grid>-->
 
-<!--    <div class="loading-container">-->
-<!--        <ion-spinner *ngIf="inProgress"></ion-spinner>-->
-<!--    </div>-->
-<!--    <ion-list>-->
-<!--        <ion-item *ngFor="let recipe of results" [routerLink]="['/logged','recipes', recipe.key ]">-->
-<!--            <ion-thumbnail slot="start">-->
-<!--                <img [src]="recipe.image">-->
-<!--            </ion-thumbnail>-->
-<!--            <ion-label>{{ recipe.title }}</ion-label>-->
-<!--            <ion-icon name="arrow-dropright"></ion-icon>-->
-<!--        </ion-item>-->
-<!--    </ion-list>-->
+<ion-content padding>
+    <div #map id="map"></div>
+    <div text-center *ngIf="photo">
+        <img [src]="photo">
+        <div *ngIf="position && location">
+            <span>Lokalizacja: {{ location }} ({{ position.coords.latitude }}/{{ position.coords.longitude }})</span>
+            <br>
+            <ion-button (click)="onSave()">Zapisz</ion-button>
+        </div>
+    </div>
 
-<!--    <div text-center>-->
-<!--        <ion-label *ngIf="!inProgress && !results.length">No results</ion-label>-->
-<!--    </div>-->
+    <ion-fab vertical="bottom" horizontal="center" slot="fixed">
+        <ion-fab-button (click)="takePicture()">
+            <ion-icon name="camera"></ion-icon>
+        </ion-fab-button>
+    </ion-fab>
 </ion-content>
