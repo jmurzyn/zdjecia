@@ -28,6 +28,12 @@ export class UsersDataService
     addPhoto(id: string, photo: Photo)
     {
         const ref = this.fireDatabase.list(`/users/${id}/photos`);
-        ref.push(photo);
+        return ref.push(photo);
+    }
+
+    removePhoto(id: string, photo: Photo)
+    {
+        const ref = this.fireDatabase.object(`/users/${id}/photos/${photo.key}`);
+        ref.remove();
     }
 }

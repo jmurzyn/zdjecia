@@ -25,11 +25,18 @@ export class PhotosDataService
                     photo.lng = lng;
                     photo.location = location;
                     photo.photo = url;
+                    photo.id = randomId;
 
                     resolve(photo);
                 })
 
         })
+    }
+
+    removePhoto(photo: Photo)
+    {
+        const ref = this.storage.ref(photo.id);
+        ref.delete();
     }
 
     private convertBase64ToFile (image) : Blob

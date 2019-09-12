@@ -1,23 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 
-
-import {
-    Plugins,
-    PushNotification,
-    PushNotificationToken,
-    PushNotificationActionPerformed
-} from '@capacitor/core';
-// import { Recipe } from '../../../../models/photo.model';
-// import { Notfication } from '../../../../models/notfication.model';
-// import { RecipesDataService } from '../../../../services/data/recipes.data.service';
-// import { Platform } from '@ionic/angular';
-// import { AuthService } from '../../../../services/core/auth.service';
-// import { UsersDataService } from '../../../../services/data/users.data.service';
-// import { flatMap } from 'rxjs/operators';
-// import { NotificationsDataService } from '../../../../services/data/notifications.data.service';
-
-const { PushNotifications } = Plugins;
-
+import { AuthService } from '../../../../services/core/auth.service';
+import { Photo } from '../../../../models/photo.model';
+import { UsersDataService } from '../../../../services/data/users.data.service';
+import { PhotosDataService } from '../../../../services/data/photos.data.service';
+import { User } from '../../../../models/user.model';
 
 @Component({
     selector: 'app-home',
@@ -26,78 +13,46 @@ const { PushNotifications } = Plugins;
 })
 export class PhotosPage implements OnInit
 {
-    // inProgress: boolean = false;
-    // results: Array<Recipe> = [];
-    // recipes: Array<Recipe> = [];
-    // notifications: Array<Notfication> = [];
+    inProgress: boolean = false;
+    results: Array<Photo> = [];
 
-    constructor(
-        // private platform: Platform,
-        // private recipesDataService: RecipesDataService,
-        // private notificationsDataService: NotificationsDataService,
-        // private authService: AuthService,
-        // private usersDataService: UsersDataService
-    ) { }
+    constructor(private authService: AuthService, private usersDataService: UsersDataService, private photosDataService: PhotosDataService) { }
 
     ngOnInit()
     {
-        // this.inProgress = true;
-        // if(!this.authService.logged)
-        //     this.authService.user.subscribe(() => this.getData())
-        // else
-        //     this.getData();
-        //
-        // if(this.platform.is("android") || this.platform.is("ios"))
-        // {
-        //     console.log('Initializing PhotosPage');
-        //     //Register with Apple / Google to receive push via APNS/FCM
-        //     PushNotifications.register();
-        //
-        //     // On succcess, we should be able to receive notifications
-        //     PushNotifications.addListener('registration',
-        //         (token: PushNotificationToken) => {
-        //             //alert('Push registration success, token: ' + token.value);
-        //             this.usersDataService.addToken(this.authService.logged.id, token.value);
-        //         }
-        //     );
-        //
-        //     // Some issue with our setup and push will not work
-        //     PushNotifications.addListener('registrationError',
-        //         (error: any) => {
-        //             alert('Error on registration: ' + JSON.stringify(error));
-        //         }
-        //     );
-        //
-        //     // // Show us the notification payload if the app is open on our device
-        //     // PushNotifications.addListener('pushNotificationReceived',
-        //     //     (notification: PushNotification) => {
-        //     //         alert('Push received: ' + JSON.stringify(notification));
-        //     //     }
-        //     // );
-        //     //
-        //     // // Method called when tapping on a notification
-        //     // PushNotifications.addListener('pushNotificationActionPerformed',
-        //     //     (notification: PushNotificationActionPerformed) => {
-        //     //         alert('Push action performed: ' + JSON.stringify(notification));
-        //     //     }
-        //     // );
-        // }
+        if(!this.authService.logged)
+            this.authService.user.subscribe(() => this.getData())
+        else
+            this.getData();
+
     }
-    //
-    // getData()
-    // {
-    //     this.notificationsDataService
-    //         .getUserNotifications(this.authService.logged.id)
-    //         .pipe(flatMap((snapshotList: Array<any>) => {
-    //             this.notifications = snapshotList.map(snapshot => <Notfication>{ ...snapshot.payload.val(), key: snapshot.key });
-    //             return this.recipesDataService.getRecipes();
-    //         }))
-    //         .subscribe(snapshotList => {
-    //
-    //             this.inProgress = false;
-    //             this.results = snapshotList.map(snapshot => <Recipe>{ ...snapshot.payload.val(), key: snapshot.key } )
-    //                .filter((recipe: Recipe) => this.notifications.map(notification => notification.recipe_id).includes(recipe.key));
-    //         });
-    // }
+
+    getData()
+    {
+        this.inProgress = true;
+        this.usersDataService.getUser(this.authService.logged.id)
+            .valueChanges()
+            .subscribe((user: User) => {
+                this.inProgress = false;
+
+                if(user.photos)
+                {
+                    this.results = Object.keys(user.photos).map(key => {
+                        const photo = user.photos[key];
+                        photo.key = key;
+                        return photo;
+                    });
+                }
+                else
+                    this.results = [];
+            });
+    }
+
+    onRemove(photo: Photo) : void
+    {
+        this.photosDataService.removePhoto(photo);
+        this.usersDataService.removePhoto(this.authService.logged.id, photo);
+    }
+
 
 }
