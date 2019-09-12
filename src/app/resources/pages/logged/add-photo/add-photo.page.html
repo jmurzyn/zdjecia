@@ -24,8 +24,8 @@
             <span>Lokalizacja: {{ location ? location : "Nie znaleziono" }} ({{ position.coords.latitude }} / {{ position.coords.longitude }})</span>
             <br>
             <br>
-            <ion-button (click)="onSave()" [disabled]="inProgress">Zapisz</ion-button>
         </div>
+        <ion-button (click)="onSave()" [disabled]="inProgress">Zapisz</ion-button>
     </div>
 
     <ion-fab vertical="bottom" horizontal="end" slot="fixed">
