@@ -33,7 +33,7 @@ export class AddPhotoPage
     async onSave()
     {
         this.inProgress = true;
-        const photo = await this.photosDataService.uploadPhoto(this.image, this.position.coords.latitude, this.position.coords.longitude, this.location);
+        const photo = await this.photosDataService.uploadPhoto(this.image, this.position ? this.position.coords.latitude : null, this.position ? this.position.coords.longitude : null, this.location);
         this.usersDataService.addPhoto(this.authService.logged.id, photo)
             .then(() => {
                 this.inProgress = false;
@@ -60,7 +60,7 @@ export class AddPhotoPage
     async getCurrentPosition()
     {
         this.inProgress = true;
-        const coordinates = <Position>await Plugins.Geolocation.getCurrentPosition();
+        const coordinates = <Position>await Plugins.Geolocation.getCurrentPosition().catch(e => console.log(e));
         this.position = coordinates;
         this.inProgress = false;
 
@@ -70,19 +70,22 @@ export class AddPhotoPage
 
     locatePlace()
     {
-        this.inProgress = true;
-        this.map = new google.maps.Map(this.mapElement.nativeElement);
-        let service = new google.maps.places.PlacesService(this.map);
-        service.nearbySearch({
-            location: new google.maps.LatLng(this.position.coords.latitude, this.position.coords.longitude),
-            radius: 500,
-            types: [ "" ]
-        }, (results, status) => {
+        if(this.position)
+        {
+            this.inProgress = true;
+            this.map = new google.maps.Map(this.mapElement.nativeElement);
+            let service = new google.maps.places.PlacesService(this.map);
+            service.nearbySearch({
+                location: new google.maps.LatLng(this.position.coords.latitude, this.position.coords.longitude),
+                radius: 500,
+                types: [ "" ]
+            }, (results, status) => {
 
-            this.inProgress = false;
-            if(Array.isArray(results) && results[0])
-                this.location = results[0].name;
-        });
+                this.inProgress = false;
+                if(Array.isArray(results) && results[0])
+                    this.location = results[0].name;
+            });
+        }
     }
 
     clearValues()
