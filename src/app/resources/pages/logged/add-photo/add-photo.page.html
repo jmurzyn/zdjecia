@@ -8,13 +8,23 @@
 </ion-header>
 
 <ion-content padding>
+    <br>
+    <ion-toolbar>
+        <ion-title color="primary" text-center>Zrób zdjęcie</ion-title>
+    </ion-toolbar>
     <div #map id="map"></div>
     <div text-center *ngIf="photo">
         <img [src]="photo">
-        <div *ngIf="position && location">
-            <span>Lokalizacja: {{ location }} ({{ position.coords.latitude }}/{{ position.coords.longitude }})</span>
+        <br><br>
+        <div class="loading-container" text-center>
+            <ion-spinner *ngIf="inProgress"></ion-spinner>
+        </div>
+        <div *ngIf="position">
             <br>
-            <ion-button (click)="onSave()">Zapisz</ion-button>
+            <span>Lokalizacja: {{ location ? location : "Nie znaleziono" }} ({{ position.coords.latitude }} / {{ position.coords.longitude }})</span>
+            <br>
+            <br>
+            <ion-button (click)="onSave()" [disabled]="inProgress">Zapisz</ion-button>
         </div>
     </div>
 
