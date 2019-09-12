@@ -1,0 +1,36 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-menu-button></ion-menu-button>
+        </ion-buttons>
+        <ion-title>CookEat</ion-title>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content padding>
+    <br>
+    <ion-toolbar>
+        <ion-title color="primary" text-center>Zrób zdjęcie</ion-title>
+    </ion-toolbar>
+    <div #map id="map"></div>
+    <div text-center *ngIf="photo">
+        <img [src]="photo">
+        <br><br>
+        <div class="loading-container" text-center>
+            <ion-spinner *ngIf="inProgress"></ion-spinner>
+        </div>
+        <div *ngIf="position">
+            <br>
+            <span>Lokalizacja: {{ location ? location : "Nie znaleziono" }} ({{ position.coords.latitude }} / {{ position.coords.longitude }})</span>
+            <br>
+            <br>
+            <ion-button (click)="onSave()" [disabled]="inProgress">Zapisz</ion-button>
+        </div>
+    </div>
+
+    <ion-fab vertical="bottom" horizontal="center" slot="fixed">
+        <ion-fab-button (click)="takePicture()">
+            <ion-icon name="camera"></ion-icon>
+        </ion-fab-button>
+    </ion-fab>
+</ion-content>
